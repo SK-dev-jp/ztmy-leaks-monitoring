@@ -120,6 +120,51 @@ async function postToX(post: PostInfo): Promise<boolean> {
   }
 }
 
+// ─── LINE Messaging API ──────────────────────────────────────────────────────
+
+async function sendLineNotification(post: PostInfo): Promise<boolean> {
+  const channelAccessToken = Netlify.env.get("LINE_CHANNEL_ACCESS_TOKEN");
+  const userId = Netlify.env.get("LINE_USER_ID");
+
+  if (!channelAccessToken || !userId) {
+    console.warn("LINE credentials not configured — skipping LINE notification");
+    return false;
+  }
+
+  const messageText = `🚨 ZTMY LEAKS 更新！\n\n📝 ${post.title}\n🔗 ${post.url}`;
+
+  try {
+    const res = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${channelAccessToken}`,
+      },
+      body: JSON.stringify({
+        to: userId,
+        messages: [
+          {
+            type: "text",
+            text: messageText,
+          },
+        ],
+      }),
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.text();
+      console.error(`LINE API error: ${res.status} ${res.statusText}`, errorBody);
+      return false;
+    }
+
+    console.log("Successfully sent LINE notification");
+    return true;
+  } catch (err) {
+    console.error("Failed to send LINE notification:", err);
+    return false;
+  }
+}
+
 // ─── Main Handler ────────────────────────────────────────────────────────────
 
 const STORE_NAME = "ihihi-monitor";
@@ -154,11 +199,14 @@ export default async (req: Request) => {
       : `First run — storing initial state: "${latestPost.title}"`
   );
 
-  // 4. Post to X (only if not the first run — first run just stores the baseline)
+  // 4. Notify (only if not the first run — first run just stores the baseline)
   if (storedState) {
-    await postToX(latestPost);
+    await Promise.allSettled([
+      postToX(latestPost),
+      sendLineNotification(latestPost),
+    ]);
   } else {
-    console.log("First run — skipping X post, storing baseline state");
+    console.log("First run — skipping notifications, storing baseline state");
   }
 
   // 5. Update stored state
