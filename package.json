@@ -1,0 +1,15 @@
+{
+  "name": "ztmy-leaks-monitoring",
+  "version": "1.0.0",
+  "description": "ihihi.me (ZTMY LEAKS) update monitor & X auto-post system",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0",
+    "@netlify/functions": "^3.0.0",
+    "node-html-parser": "^6.1.13",
+    "oauth-1.0a": "^2.2.6"
+  }
+}
