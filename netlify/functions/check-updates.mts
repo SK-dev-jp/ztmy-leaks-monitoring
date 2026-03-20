@@ -124,9 +124,8 @@ async function postToX(post: PostInfo): Promise<boolean> {
 
 async function sendLineNotification(post: PostInfo): Promise<boolean> {
   const channelAccessToken = Netlify.env.get("LINE_CHANNEL_ACCESS_TOKEN");
-  const userId = Netlify.env.get("LINE_USER_ID");
 
-  if (!channelAccessToken || !userId) {
+  if (!channelAccessToken) {
     console.warn("LINE credentials not configured — skipping LINE notification");
     return false;
   }
@@ -134,14 +133,14 @@ async function sendLineNotification(post: PostInfo): Promise<boolean> {
   const messageText = `🚨 ZTMY LEAKS 更新！\n\n📝 ${post.title}\n🔗 ${post.url}`;
 
   try {
-    const res = await fetch("https://api.line.me/v2/bot/message/push", {
+    // Broadcast to ALL friends (no user ID needed)
+    const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${channelAccessToken}`,
       },
       body: JSON.stringify({
-        to: userId,
         messages: [
           {
             type: "text",
@@ -157,7 +156,7 @@ async function sendLineNotification(post: PostInfo): Promise<boolean> {
       return false;
     }
 
-    console.log("Successfully sent LINE notification");
+    console.log("Successfully sent LINE broadcast notification");
     return true;
   } catch (err) {
     console.error("Failed to send LINE notification:", err);
