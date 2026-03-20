@@ -81,7 +81,7 @@ async function postToX(post: PostInfo): Promise<boolean> {
     return false;
   }
 
-  const tweetText = `🚨 ihihi.me 更新！\n\n📝 ${post.title}\n🔗 ${post.url}`;
+  const tweetText = `🚨 ZTMY LEAKS 更新！\n\n📝 ${post.title}\n🔗 ${post.url}`;
 
   const oauth = getOAuthClient();
   const tokens = getTokens();
