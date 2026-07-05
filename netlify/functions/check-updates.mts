@@ -221,3 +221,4 @@ export default async (req: Request) => {
 export const config: Config = {
   schedule: "*/30 * * * *",
 };
+// fix symlink error
